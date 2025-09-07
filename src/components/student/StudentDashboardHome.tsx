@@ -2,15 +2,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Calendar, FileText, Clock, CheckCircle, XCircle } from "lucide-react";
 
-export const StudentDashboardHome = () => {
-  // Mock data for demonstration
-  const studentInfo = {
-    name: "John Doe",
-    rollNumber: "2024001",
-    room: "A-101",
-    course: "Computer Science",
-    year: "3rd Year",
-  };
+interface StudentDashboardHomeProps {
+  student: {
+    id: string;
+    full_name: string;
+    roll_no: string;
+    email: string;
+    course: string;
+    year: string;
+    room_no: string;
+    phone: string;
+  } | null;
+}
+
+export const StudentDashboardHome = ({ student }: StudentDashboardHomeProps) => {
+  if (!student) {
+    return <div>Loading...</div>;
+  }
 
   const leaveStats = {
     totalApplications: 5,
@@ -68,7 +76,7 @@ export const StudentDashboardHome = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Welcome back, {studentInfo.name}!</h1>
+        <h1 className="text-3xl font-bold text-foreground">Welcome back, {student.full_name}!</h1>
         <p className="text-muted-foreground mt-1">
           Here's an overview of your leave applications and hostel information.
         </p>
@@ -84,19 +92,19 @@ export const StudentDashboardHome = () => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Roll Number</p>
-              <p className="text-lg font-semibold">{studentInfo.rollNumber}</p>
+              <p className="text-lg font-semibold">{student.roll_no}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Room</p>
-              <p className="text-lg font-semibold">{studentInfo.room}</p>
+              <p className="text-lg font-semibold">{student.room_no}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Course</p>
-              <p className="text-lg font-semibold">{studentInfo.course}</p>
+              <p className="text-lg font-semibold">{student.course}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Year</p>
-              <p className="text-lg font-semibold">{studentInfo.year}</p>
+              <p className="text-lg font-semibold">{student.year}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Leave Balance</p>

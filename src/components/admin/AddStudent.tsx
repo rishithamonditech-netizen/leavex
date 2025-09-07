@@ -1,39 +1,37 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus } from "lucide-react";
 
 export const AddStudent = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    full_name: "",
     rollNumber: "",
+    dob: "",
     email: "",
-    password: "",
     phone: "",
-    room: "",
+    room_no: "",
     course: "",
     year: "",
-    guardianName: "",
-    guardianPhone: "",
-    address: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    const requiredFields = ['name', 'rollNumber', 'email', 'password', 'phone', 'room', 'course', 'year'];
+    const requiredFields = ['full_name', 'rollNumber', 'dob', 'email', 'phone', 'room_no', 'course', 'year'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
     
     if (missingFields.length > 0) {
@@ -45,29 +43,65 @@ export const AddStudent = () => {
       return;
     }
 
-    // Simulate API call
-    console.log("Adding student:", formData);
-    
-    toast({
-      title: "Student Added Successfully",
-      description: `${formData.name} has been registered to the hostel management system.`,
-    });
+    setIsSubmitting(true);
 
-    // Reset form
-    setFormData({
-      name: "",
-      rollNumber: "",
-      email: "",
-      password: "",
-      phone: "",
-      room: "",
-      course: "",
-      year: "",
-      guardianName: "",
-      guardianPhone: "",
-      address: "",
-    });
+    try {
+      // Insert student into Supabase
+      const { data, error } = await supabase
+        .from('students')
+        .insert([
+          {
+            full_name: formData.full_name,
+            roll_no: formData.rollNumber,
+            dob: formData.dob,
+            email: formData.email,
+            phone: formData.phone,
+            room_no: formData.room_no,
+            course: formData.course,
+            year: formData.year,
+          }
+        ])
+        .select();
+
+      if (error) {
+        console.error('Error adding student:', error);
+        toast({
+          title: "Error Adding Student",
+          description: error.message || "Failed to add student. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Student Added Successfully",
+        description: `${formData.full_name} (${formData.rollNumber}) has been registered to the hostel management system.`,
+      });
+
+      // Reset form
+      setFormData({
+        full_name: "",
+        rollNumber: "",
+        dob: "",
+        email: "",
+        phone: "",
+        room_no: "",
+        course: "",
+        year: "",
+      });
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+    
 
   return (
     <div className="space-y-6">
@@ -95,11 +129,11 @@ export const AddStudent = () => {
               <h3 className="text-lg font-semibold">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="full_name">Full Name *</Label>
                   <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    id="full_name"
+                    value={formData.full_name}
+                    onChange={(e) => handleInputChange('full_name', e.target.value)}
                     placeholder="Enter student's full name"
                   />
                 </div>
@@ -113,6 +147,15 @@ export const AddStudent = () => {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="dob">Date of Birth * (Used as login password)</Label>
+                  <Input
+                    id="dob"
+                    type="date"
+                    value={formData.dob}
+                    onChange={(e) => handleInputChange('dob', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="email">Email Address *</Label>
                   <Input
                     id="email"
@@ -120,16 +163,6 @@ export const AddStudent = () => {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="student@university.edu"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Login Password *</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    placeholder="Set student login password"
                   />
                 </div>
                 <div className="space-y-2">
@@ -141,13 +174,22 @@ export const AddStudent = () => {
                     placeholder="+91 9876543210"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="room_no">Room Number *</Label>
+                  <Input
+                    id="room_no"
+                    value={formData.room_no}
+                    onChange={(e) => handleInputChange('room_no', e.target.value)}
+                    placeholder="e.g., A-101"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Academic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Academic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="course">Course *</Label>
                   <Select value={formData.course} onValueChange={(value) => handleInputChange('course', value)}>
@@ -184,60 +226,16 @@ export const AddStudent = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="room">Room Number *</Label>
-                  <Input
-                    id="room"
-                    value={formData.room}
-                    onChange={(e) => handleInputChange('room', e.target.value)}
-                    placeholder="e.g., A-101"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Parent/Guardian Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Parent/Guardian Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="guardianName">Parent Name</Label>
-                  <Input
-                    id="guardianName"
-                    value={formData.guardianName}
-                    onChange={(e) => handleInputChange('guardianName', e.target.value)}
-                    placeholder="Enter parent's name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guardianPhone">Parent Phone</Label>
-                  <Input
-                    id="guardianPhone"
-                    value={formData.guardianPhone}
-                    onChange={(e) => handleInputChange('guardianPhone', e.target.value)}
-                    placeholder="+91 9876543210"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Home Address</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Enter complete home address"
-                  rows={3}
-                />
               </div>
             </div>
 
             <div className="flex gap-4 pt-6">
               <Button type="submit" className="flex-1">
                 <UserPlus className="w-4 h-4 mr-2" />
-                Add Student
-              </Button>
-              <Button type="button" variant="outline" className="flex-1">
-                Cancel
+                <li>• The student's date of birth will be used as their login password</li>
+              <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                <li>• Email address must be valid and unique</li>
+                {isSubmitting ? "Adding Student..." : "Add Student"}
               </Button>
             </div>
           </form>

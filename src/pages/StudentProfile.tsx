@@ -6,22 +6,23 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Mail, Phone, MapPin, Calendar, Edit, GraduationCap } from "lucide-react";
 
 interface StudentProfileProps {
+  student: {
+    id: string;
+    full_name: string;
+    roll_no: string;
+    email: string;
+    course: string;
+    year: string;
+    room_no: string;
+    phone: string;
+  } | null;
   onBack: () => void;
 }
 
-export const StudentProfile = ({ onBack }: StudentProfileProps) => {
-  const studentData = {
-    name: "Alice Johnson",
-    rollNumber: "CSE2022001",
-    email: "alice.johnson@university.edu",
-    phone: "+91 9876543210",
-    course: "Computer Science and Engineering",
-    year: "3rd Year",
-    room: "A-205",
-    parentName: "Robert Johnson",
-    parentPhone: "+91 9876543211",
-    address: "123 Main Street, Downtown, City - 560001"
-  };
+export const StudentProfile = ({ student, onBack }: StudentProfileProps) => {
+  if (!student) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -40,23 +41,25 @@ export const StudentProfile = ({ onBack }: StudentProfileProps) => {
         <Card className="lg:col-span-1">
           <CardHeader className="text-center">
             <Avatar className="w-24 h-24 mx-auto mb-4">
-              <AvatarFallback className="text-2xl">AJ</AvatarFallback>
+              <AvatarFallback className="text-2xl">
+                {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+              </AvatarFallback>
             </Avatar>
-            <CardTitle>{studentData.name}</CardTitle>
-            <CardDescription>{studentData.rollNumber}</CardDescription>
+            <CardTitle>{student.full_name}</CardTitle>
+            <CardDescription>{student.roll_no}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Mail className="w-4 h-4 text-muted-foreground" />
-              <span>{studentData.email}</span>
+              <span>{student.email}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Phone className="w-4 h-4 text-muted-foreground" />
-              <span>{studentData.phone}</span>
+              <span>{student.phone}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <GraduationCap className="w-4 h-4 text-muted-foreground" />
-              <span>{studentData.year}</span>
+              <span>{student.year}</span>
             </div>
             <Button className="w-full mt-4">
               <Edit className="w-4 h-4 mr-2" />
@@ -80,19 +83,19 @@ export const StudentProfile = ({ onBack }: StudentProfileProps) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" value={studentData.name} readOnly />
+                    <Input id="name" value={student.full_name} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="rollNumber">Roll Number</Label>
-                    <Input id="rollNumber" value={studentData.rollNumber} readOnly />
+                    <Input id="rollNumber" value={student.roll_no} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" value={studentData.email} readOnly />
+                    <Input id="email" value={student.email} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" value={studentData.phone} readOnly />
+                    <Input id="phone" value={student.phone} readOnly />
                   </div>
                 </div>
               </div>
@@ -102,36 +105,19 @@ export const StudentProfile = ({ onBack }: StudentProfileProps) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="course">Course</Label>
-                    <Input id="course" value={studentData.course} readOnly />
+                    <Input id="course" value={student.course} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="year">Academic Year</Label>
-                    <Input id="year" value={studentData.year} readOnly />
+                    <Input id="year" value={student.year} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="room">Room Number</Label>
-                    <Input id="room" value={studentData.room} readOnly />
+                    <Input id="room" value={student.room_no} readOnly />
                   </div>
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Parent/Guardian Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="parentName">Parent Name</Label>
-                    <Input id="parentName" value={studentData.parentName} readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="parentPhone">Parent Phone</Label>
-                    <Input id="parentPhone" value={studentData.parentPhone} readOnly />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address">Home Address</Label>
-                    <Input id="address" value={studentData.address} readOnly />
-                  </div>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
